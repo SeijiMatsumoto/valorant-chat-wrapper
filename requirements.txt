@@ -1,0 +1,4 @@
+anthropic
+gradio
+mcp
+python-dotenv
