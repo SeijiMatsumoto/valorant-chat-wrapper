@@ -2,4 +2,5 @@ __pycache__/
 *.pyc
 .env
 valorant.db
+players.py
 .DS_Store

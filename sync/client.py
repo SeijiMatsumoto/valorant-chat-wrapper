@@ -3,6 +3,8 @@ import asyncio
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
+import sys
+
 from db.schema import get_connection
 from db.queries import (
     insert_match,
@@ -13,18 +15,16 @@ from db.queries import (
     query_matches,
 )
 
-MCP_SERVER_DIR = "/Users/seijimatsumoto/Documents/Coding/valorant-mcp"
+try:
+    from players import TRACKED_PLAYERS
+except ImportError:
+    print("ERROR: players.py not found. Copy players.example.py to players.py and add your Riot IDs.")
+    sys.exit(1)
 
-TRACKED_PLAYERS = [
-    "SayGG#11111",
-    "Whae#cat",
-    "takoyak11#1111",
-    "david#asdf",
-    "AltaVeritas#Once",
-    "Minion#NA2",
-    "xCovert#NA1",
-    "Bhasket#ZIGGS",
-]
+if not TRACKED_PLAYERS:
+    print("WARNING: TRACKED_PLAYERS is empty in players.py. The agent can still look up any player, but the UI won't show stored match counts.")
+
+MCP_SERVER_DIR = "/Users/seijimatsumoto/Documents/Coding/valorant-mcp"
 
 SERVER_PARAMS = StdioServerParameters(
     command="uv",
