@@ -1,6 +1,6 @@
 # Valorant Squad Analyst
 
-A local chat app that wraps Claude with a Valorant MCP integration and a SQLite database, enabling deep match history analysis beyond the API's 10-match limit.
+A desktop chat app that wraps Claude with a Valorant MCP integration and a SQLite database, enabling deep match history analysis beyond the API's 10-match limit.
 
 ## How It Works
 
@@ -16,44 +16,100 @@ Chat conversations are also persisted, so you can revisit or continue past analy
 
 | Layer | Technology |
 |---|---|
-| UI | Gradio |
+| Frontend | React + Tailwind CSS (Vite) |
+| Backend | FastAPI (Python) |
 | LLM | Claude (Anthropic API) |
 | Valorant data | [Valorant Analyzer MCP](https://github.com/seijimatsumoto/valorant-mcp) (stdio, local via uv) |
 | Database | SQLite (local file) |
-| Language | Python 3.11+ |
+| Desktop wrapper | pywebview |
 
 ## Setup
 
-1. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+### 1. Install Python dependencies
 
-2. **Add your Anthropic API key** to `.env`:
-   ```
-   ANTHROPIC_API_KEY=sk-ant-...
-   ```
+```bash
+pip install -r requirements.txt
+```
 
-3. **Set up tracked players** — copy the example and add your Riot IDs:
-   ```bash
-   cp players.example.py players.py
-   ```
-   Then edit `players.py` with your squad's Riot IDs.
+### 2. Install frontend dependencies and build
 
-4. **Ensure the Valorant MCP server** is available locally (configured in `sync/client.py`).
+```bash
+cd frontend
+npm install
+npm run build
+cd ..
+```
 
-4. **Run:**
-   ```bash
-   python3 main.py
-   ```
+### 3. Add your Anthropic API key to `.env`
 
-   The Gradio UI will open in your browser.
+```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+### 4. Set up tracked players
+
+```bash
+cp players.example.py players.py
+```
+
+Edit `players.py` with your squad's Riot IDs.
+
+### 5. Ensure the Valorant MCP server is available locally
+
+Configured in `sync/client.py`.
+
+### 6. Run
+
+```bash
+python3 main.py
+```
+
+This starts the FastAPI backend, serves the React frontend, and opens a native desktop window.
+
+### macOS desktop shortcut
+
+A `.app` bundle is available in `/Applications/ValorantSquadAnalyst.app` for launching from Spotlight or the Dock. See the project wiki or create one manually:
+
+```
+ValorantSquadAnalyst.app/
+  Contents/
+    Info.plist
+    MacOS/
+      launcher    # shell script that runs `python3 main.py`
+    Resources/
+      AppIcon.icns
+```
+
+### Windows
+
+The app runs on Windows with the same command (`python main.py`). To create a desktop shortcut, make a `.bat` file:
+
+```bat
+@echo off
+cd /d "C:\path\to\valorant-chat-wrapper"
+python main.py
+```
+
+Right-click the `.bat` file → **Create shortcut**, then move the shortcut to your Desktop or Start Menu.
+
+## Development
+
+For frontend hot-reload while editing React components, run the backend and frontend separately:
+
+```bash
+# Terminal 1 — backend
+python3 server.py
+
+# Terminal 2 — frontend dev server (proxies API to :8000)
+cd frontend && npm run dev
+```
 
 ## Project Structure
 
 ```
 valorant-chat-wrapper/
-├── main.py              # Gradio UI + agentic chat loop with tool use
+├── main.py              # Desktop launcher (FastAPI + pywebview)
+├── server.py            # FastAPI backend + agentic chat loop
 ├── analyst/
 │   └── context.py       # System prompt + Claude tool definitions
 ├── db/
@@ -61,7 +117,14 @@ valorant-chat-wrapper/
 │   └── queries.py       # All DB read/write functions
 ├── sync/
 │   └── client.py        # MCP client proxy + auto-store logic
+├── frontend/            # React + Tailwind (Vite)
+│   ├── src/
+│   │   ├── App.tsx
+│   │   ├── api/client.ts
+│   │   └── components/  # Sidebar, ChatArea, MessageBubble, etc.
+│   └── dist/            # Built static files (served by FastAPI)
 ├── requirements.txt
+├── players.example.py
 ├── .env                 # API key (not tracked)
 └── valorant.db          # Auto-created on first run (not tracked)
 ```

@@ -4,3 +4,10 @@ __pycache__/
 valorant.db
 players.py
 .DS_Store
+
+# Desktop app bundle
+ValorantSquadAnalyst.app/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/

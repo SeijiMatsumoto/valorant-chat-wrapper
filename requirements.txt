@@ -1,4 +1,6 @@
 anthropic
-gradio
+fastapi
+uvicorn
 mcp
 python-dotenv
+pywebview
